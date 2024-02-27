@@ -1,13 +1,51 @@
+import tracemalloc
+import unittest
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api, Resource, reqparse
+import logging
 from datetime import datetime
+import cProfile, pstats, io
+from functools import wraps
+
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s [%(levelname)s] %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S',
+                    filename='app.log',
+                    filemode='a')
+
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///EC530pro2.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 api = Api(app)
+
+
+def profile(f):
+    @wraps(f)
+    def wrapped(*args, **kwargs):
+        tracemalloc.start()
+        profiler = cProfile.Profile()
+        profiler.enable()
+        result = f(*args, **kwargs)
+        profiler.disable()
+        s = io.StringIO()
+        sortby = 'cumulative'
+        ps = pstats.Stats(profiler, stream=s).sort_stats(sortby)
+        ps.print_stats()
+        logger.info(f"CPU Profiling for {f.__name__}:\n{s.getvalue()}")
+        snapshot = tracemalloc.take_snapshot()
+        top_stats = snapshot.statistics('lineno')
+        logger.info(f"[Top 10 memory usage for {f.__name__}]")
+        for stat in top_stats[:10]:
+            logger.info(str(stat))
+        tracemalloc.stop()
+
+        return result
+    return wrapped
 
 # Data model definitions
 class Dataset(db.Model):
@@ -105,13 +143,13 @@ class DatasetResource(Resource):
 
 # Flask-RESTful resource for handling the dataset collection
 class DatasetListResource(Resource):
-    # Get all datasets
+    method_decorators = [profile]
+
     def get(self):
         datasets = Dataset.query.all()
         return [{'DatasetID': d.DatasetID, 'Name': d.Name, 'Description': d.Description, 'Type': d.Type,
                  'CreationDate': d.CreationDate.isoformat() if d.CreationDate else None} for d in datasets]
 
-    # Create a new dataset
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('Name', type=str, required=True, help="Name cannot be blank.")
@@ -126,12 +164,18 @@ class DatasetListResource(Resource):
         db.session.commit()
         return {'message': 'Dataset created.', 'DatasetID': dataset.DatasetID}, 201
 
-
-# Adding resources to the API
 api.add_resource(DatasetListResource, '/datasets')
-api.add_resource(DatasetResource, '/datasets/<int:dataset_id>')
 
 if __name__ == '__main__':
+    tracemalloc.start()
+    profiler = cProfile.Profile()
+    profiler.enable()
+    unittest.main(exit=False)
+    profiler.disable()
+    profiler.print_stats(sort='time')
+    snapshot = tracemalloc.take_snapshot()
+    top_stats = snapshot.statistics('lineno')
+    logging.info("[Top 10 memory usage]")
     with app.app_context():
         db.create_all()
     app.run(debug=True)
