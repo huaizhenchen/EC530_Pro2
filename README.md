@@ -1,2 +1,51 @@
-# EC530_Pro2
-This project consists of the following parts: 1.stub file , to achieve CRUD operations 2.app.py file , to generate the database framework , to generate log files 3.test_stub file , to achieve the stub file test function
+# Machine Learning image classification API
+
+## Introduction
+This project includes a server application, a Unity-based framework, and a client module that performs CRUD operations on a database. Follow the instructions below to set up and run the components of this project.
+
+## Getting Started
+
+### Prerequisites
+Ensure you have Python and Unity installed on your system. You may need additional dependencies as described in `requirements.txt`.
+
+### Installation
+
+1. **Server Setup:**
+   - Navigate to the `pro2final` directory.
+   - Install required Python packages:
+     ```bash
+     pip install -r requirements.txt
+     ```
+   - Run the server application:
+     ```bash
+     python app.py
+     ```
+
+2. **Unit Testing:**
+   - To run unit tests for the server, execute:
+     ```bash
+     python test_app.py
+     ```
+
+3. **Framework Usage:**
+   - Open the `framework` directory.
+   - Execute the `helloworld.exe` application, designed with Unity.
+   - Use the interface to upload a `.png` image, which will be sent to the server via an API. The server will process and store the recognized information in the database.
+
+4. **Client Operations:**
+   - Run the `client.py` file to manage data in the database through CRUD operations:
+     ```bash
+     python client.py
+     ```
+
+## Usage
+After setting up the server, testing it, interacting with the Unity framework, and executing client operations, you can fully utilize the functionalities provided by this project for image processing and data management.
+
+## Support
+For additional help or issues, refer to the project documentation or submit an issue in the project repository.
+
+
+## Authors
+- Huaizhen Chen
+
+
