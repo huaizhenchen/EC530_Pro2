@@ -1,7 +1,7 @@
 # Machine Learning image classification API
 
 ## Introduction
-This project includes a server application, a Unity-based framework, and a client module that performs CRUD operations on a database. Follow the instructions below to set up and run the components of this project.
+The main work done in this project is through the API, so that users can locally transfer images to the server, the images will be classified on the server through the ML model for the images, and the data will be automatically saved in the database, the user can through the API for the database to CRUD operation.
 
 ## Getting Started
 
